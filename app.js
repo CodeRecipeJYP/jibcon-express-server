@@ -5,6 +5,7 @@
 const express = require("express");
 const app = express();
 const routes = require("./routes/routes");
+const productinstances_routes = require("./routes/productinstances_routes");
 
 const jsonParser = require("body-parser").json;
 const logger = require("morgan");
@@ -47,6 +48,7 @@ app.use(function (req, res, next) {
 });
 
 app.use("/products", routes);
+app.use("/product_instances", productinstances_routes);
 
 // catch 404 and forward to error handler
 app.use(function(req, res, next) {
