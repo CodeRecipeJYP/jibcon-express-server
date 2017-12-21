@@ -1,6 +1,7 @@
 'use strict';
 const router = require('express').Router();
 const ProductInstance = require('../models/models').ProductInstance;
+const admin = require("../firebase/firebaseadmin");
 
 router.param("productInstanceId", function (req, res, next, id) {
   ProductInstance.findById(id, function (err, doc) {
@@ -31,11 +32,25 @@ router.get("/", function(req, res) {
 
 // POST /productInstances
 router.post("/", function(req, res, next) {
-  console.log("post/Authorization", req.headers["Authorization"]);
-  console.log("post/Authorization", req.headers);
   console.log("post/body", req.body);
+  let idToken = req.headers["authorization"];
+  console.log("post/authorization", idToken);
+
+  admin.auth().verifyIdToken(idToken)
+    .then(function(decodedToken) {
+      let uid = decodedToken.uid;
+      console.log("post/", "uid=", uid);
+      req.uid = uid;
+      next();
+      res.json();
+      // ...
+    }).catch(function(error) {
+      res.json(error);
+    // Handle error
+  });
+
+
   let product = new ProductInstance(req.body);
-  res.json("");
 });
 
 //GET /productInstances/:productInstanceId
