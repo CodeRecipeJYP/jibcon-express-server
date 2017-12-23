@@ -3,7 +3,7 @@
  */
 'use strict';
 const router = require('express').Router();
-const Product = require('../models/models').Product;
+const Product = require('../models/productinstance').Product;
 
 router.param("productId", function (req, res, next, id) {
   Product.findById(id, function (err, doc) {

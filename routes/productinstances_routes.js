@@ -1,49 +1,36 @@
 'use strict';
 const router = require('express').Router();
-const ProductInstance = require('../models/models').ProductInstance;
-const admin = require("../firebase/firebaseadmin");
-
-
-router.param("productInstanceId", function (req, res, next, id) {
-  console.log("router.param/productInstanceId");
-  ProductInstance.findById(id, function (err, doc) {
-    if (err) return next(err);
-    if (!doc) {
-      err = new Error("Not Found");
-      err.status = 404;
-      return next(err);
-    }
-
-    req.product = doc;
-    return next();
-  })
-});
-
-// GET /productInstances
-// Return all the productInstances
-router.get("/", function(req, res) {
-  // -1 means Descending Order
-  // "null" is to use third parameter as projection.
-  ProductInstance.find({})
-    .sort({createdAt: -1})
-    .exec(function (err, productInstances) {
-      if (err) return next(err);
-      res.json(productInstances);
-    });
-});
+const ProductInstance = require('../models/productinstance').ProductInstance;
+const fcm = require('../firebase/fcm');
+const db = require('../firebase/db');
 
 // POST /productInstances
 router.post("/", function(req, res, next) {
   console.log("post/req.uid=", req.uid);
   console.log("post/body", req.body);
 
-  res.json("");
+  let instance = new ProductInstance(req.body.uuid, req.body.fcmToken);
+  db.createProductInstance(req.uid, req.body.name, instance)
+    .then(() => {
+      console.log("productinstances_routes.js/", "db.createProductInstance.then/", "instance=", instance);
+      res.json(instance);
+    });
 });
 
-//GET /productInstances/:productInstanceId
-router.get("/:productInstanceId", function(req, res) {
 
-  res.json(req.product);
+// GET /productInstances
+router.get("/", function(req, res, next) {
+  console.log("get/body", req.body);
+
+  fcm.sendToTestDevice()
+    .then((response) => {
+      res.json(response);
+    }).catch((error) => {
+      err.status = 500;
+      err.message = error.message;
+      next(err);
+  });
 });
+
 
 module.exports = router;
