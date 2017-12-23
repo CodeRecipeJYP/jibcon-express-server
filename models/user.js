@@ -1,0 +1,3 @@
+const ANONYMOUS_UID = "ANONYMOUS";
+
+module.exports.ANONYMOUS_UID = ANONYMOUS_UID;
