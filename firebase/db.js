@@ -33,4 +33,18 @@ module.exports = {
         });
     });
   },
+
+  findProductInstance: (uid, instanceId) => {
+    return new Promise((resolve, reject) => {
+      console.log("db.js/findProductInstance", "uid=", uid, "instanceId=", instanceId);
+      getProductInstanceRef().child(uid).child(instanceId).once("value", (snapshot) => {
+        console.log("db.js/findProductInstance", "snapshot=", snapshot);
+        if (snapshot.exists()) {
+          resolve(snapshot.val());
+        } else {
+          reject(new Error("Doesn't exists"));
+        }
+      });
+    });
+  },
 };

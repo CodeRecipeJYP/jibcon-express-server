@@ -32,5 +32,29 @@ router.get("/", function(req, res, next) {
   });
 });
 
+router.post("/:instanceId", function(req, res, next) {
+  // console.log("POST /:instanceId/", "req=", req, "body=", req.body);
+
+  let onError = (error) => {
+    err.status = 500;
+    err.message = error.message;
+    next(err);
+  };
+
+  db.findProductInstance(req.uid, req.params.instanceId)
+    .then((productInstance) => {
+      let token = productInstance.token;
+
+      fcm.sendToDevice(token, req.body.action)
+        .then((response) => {
+          res.json(response);
+        }).catch((error) => {
+        onError(error);
+      });
+    }).catch((error) => {
+      onError(error);
+    }
+  );
+});
 
 module.exports = router;
